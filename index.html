@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs. Olivera's Fraction IAB Review</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --accent-color: #f72585;
+            --secondary-color: #4cc9f0;
+            --success-color: #2ec4b6;
+            --error-color: #e71d36;
+            --text-color: #2b2d42;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Comic Neue', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 750px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- Start Screen --- */
+        #start-screen { text-align: center; }
+        #start-screen h1 { font-size: 2.5em; color: var(--primary-color); margin-bottom: 10px; line-height: 1.2; }
+        #start-screen p { font-size: 1.2em; color: #666; margin-bottom: 40px; }
+
+        .big-start-btn {
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1.5em;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.4);
+        }
+        .big-start-btn:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(247, 37, 133, 0.6); }
+
+        /* --- Quiz Interface --- */
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .progress-container {
+            flex-grow: 1;
+            background-color: #e9ecef;
+            height: 12px;
+            border-radius: 6px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        .progress-fill { height: 100%; background-color: var(--primary-color); width: 0%; transition: width 0.5s ease; }
+
+        .question-box {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .question-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .question-text { font-size: 1.3em; line-height: 1.6; width: 90%; }
+        
+        .speak-btn {
+            background: none; border: none; cursor: pointer; font-size: 1.5em;
+            color: var(--primary-color); padding: 5px; border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .speak-btn:hover { background-color: #e6e6fa; }
+
+        .question-image {
+            display: block; max-width: 100%; height: auto; margin: 15px auto;
+            border: 2px solid #eee; border-radius: 8px; padding: 5px; background: white;
+        }
+
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+
+        .option-btn {
+            background: white; border: 2px solid #e0e0e0; padding: 18px;
+            border-radius: 12px; cursor: pointer; text-align: left;
+            font-size: 1.1em; transition: all 0.2s; display: flex; align-items: center;
+        }
+        .option-btn:hover { border-color: var(--primary-color); background-color: #f0f4ff; transform: translateY(-2px); }
+        .option-btn.selected { border-color: var(--primary-color); background-color: #e6f2ff; font-weight: bold; }
+        .option-btn.correct { border-color: var(--success-color); background-color: #dbfce6; color: #0e5e52; }
+        .option-btn.wrong { border-color: var(--error-color); background-color: #fadbd8; color: #8a1c1c; }
+
+        .controls { display: flex; justify-content: center; margin-top: 30px; gap: 20px; }
+
+        .btn {
+            padding: 12px 30px; background-color: var(--primary-color); color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-size: 1.1em; font-weight: bold;
+        }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.7; }
+
+        .feedback {
+            margin-top: 20px; padding: 20px; border-radius: 10px; display: none;
+            font-size: 1.1em; animation: fadeIn 0.5s;
+        }
+
+        /* --- Results Screen --- */
+        #results-screen { text-align: center; padding: 40px 20px; }
+
+        .score-circle {
+            width: 180px; height: 180px;
+            background: var(--primary-color); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 3.5em; font-weight: bold; margin: 30px auto;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.5);
+            border: 5px solid white; outline: 5px solid var(--accent-color);
+        }
+
+        /* --- NEW FRACTION STYLING (Bulletproof) --- */
+        .frac {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 0.9em;
+            margin: 0 4px;
+        }
+        .frac .top {
+            display: block;
+            border-bottom: 2px solid currentColor;
+            padding: 0 2px;
+        }
+        .frac .bottom {
+            display: block;
+            padding: 0 2px;
+        }
+        .mixed {
+            margin-right: 6px;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: fixed; top: 0; left: 0; width: 10px; height: 10px;
+            background-color: #f00; z-index: 9999; pointer-events: none;
+            animation: fall linear forwards;
+        }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="start-screen">
+        <h1>Mrs. Olivera's<br>Fraction IAB Review</h1>
+        <p>5th Grade Math Practice</p>
+        <div style="font-size: 5em; margin: 30px 0;">➗</div>
+        <p>Get your scratch paper ready!</p>
+        <button class="big-start-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="header-row">
+            <span style="font-weight:bold; color: #666;">Progress:</span>
+            <div class="progress-container"><div class="progress-fill" id="progress"></div></div>
+            <span id="q-counter" style="font-weight:bold; color: var(--primary-color);">1/16</span>
+        </div>
+
+        <div class="question-box">
+            <div class="question-header">
+                <div id="question-text" class="question-text"></div>
+                <button class="speak-btn" onclick="speakQuestion()" title="Read Aloud">🔊</button>
+            </div>
+            
+            <div id="options-container" class="options-grid"></div>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
+        <div class="controls">
+            <button id="submit-btn" class="btn" onclick="checkAnswer()">Check Answer</button>
+            <button id="next-btn" class="btn" onclick="nextQuestion()" disabled>Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="results-screen" class="hidden">
+        <h1 style="color: var(--accent-color);">🎉 CONGRATULATIONS! 🎉</h1>
+        <p style="font-size: 1.3em;">You have completed the fraction practice.</p>
+        <div class="score-circle" id="final-score">0%</div>
+        <p id="score-text" style="font-size: 1.2em; margin-bottom: 30px; font-weight: bold;"></p>
+        <button class="big-start-btn" onclick="restartQuiz()">Try Again ↺</button>
+    </div>
+
+</div>
+
+<script>
+    // New simplified fraction helper - no slashes hidden, just blocks
+    function f(top, bottom) {
+        return `<span class="frac"><span class="top">${top}</span><span class="bottom">${bottom}</span></span>`;
+    }
+
+    const quizData = [
+        {
+            id: 1,
+            question: `Which fraction model best represents 5 × ${f(2,3)}? <br><img src='q1.png' class='question-image' alt='Fraction models showing circles'>`,
+            options: ["Model A", "Model B", "Model C", "Model D"],
+            answer: 3, 
+            noShuffle: true, 
+            explanation: `The expression 5 × ${f(2,3)} means "5 groups of ${f(2,3)}". Model D shows exactly 5 circles, and each circle has 2 out of 3 sections shaded.`
+        },
+        {
+            id: 2,
+            question: `Which expression is equal to ${f(97,33)}?`,
+            options: ["97 ÷ 33", "97 × 33", "33 ÷ 97", "33 × 97"],
+            answer: 0, 
+            explanation: `A fraction bar represents division. So, ${f(97,33)} is the same as 97 divided by 33.`
+        },
+        {
+            id: 3,
+            question: `Ramona drank <span class="mixed">1</span>${f(5,8)} liters of water during practice and <span class="mixed">1</span>${f(1,4)} liters on the ride home. Which expression finds the total?`,
+            options: [`2 + ${f(6,12)}`, `2 + ${f(6,8)}`, `1 + 1 + ${f(5,12)} + ${f(1,12)}`, `1 + 1 + ${f(5,8)} + ${f(2,8)}`],
+            answer: 3, 
+            explanation: `Separate the whole numbers (1+1) and the fractions. Convert ${f(1,4)} into ${f(2,8)} to match denominators. So we get 1 + 1 + ${f(5,8)} + ${f(2,8)}.`
+        },
+        {
+            id: 4,
+            question: "Martha cut a 36-foot rope into 8 equal sections. What is the length of each section?",
+            options: [`${f(1,44)} ft`, `${f(2,9)} ft`, `<span class="mixed">3</span>${f(6,8)} ft`, `<span class="mixed">4</span>${f(1,2)} ft`],
+            answer: 3, 
+            explanation: `36 ÷ 8 = 4 with a remainder of 4. This is <span class="mixed">4</span>${f(4,8)}, which simplifies to <span class="mixed">4</span>${f(1,2)}.`
+        },
+        {
+            id: 5,
+            question: `Enter the sum: <span class="mixed">2</span>${f(3,4)} + <span class="mixed">5</span>${f(1,2)}`,
+            options: [`<span class="mixed">7</span>${f(1,4)}`, `<span class="mixed">8</span>${f(1,4)}`, `<span class="mixed">7</span>${f(1,2)}`, `8`],
+            answer: 1, 
+            explanation: `Convert ${f(1,2)} to ${f(2,4)}. Then: <span class="mixed">2</span>${f(3,4)} + <span class="mixed">5</span>${f(2,4)} = <span class="mixed">7</span>${f(5,4)}. Since ${f(5,4)} is <span class="mixed">1</span>${f(1,4)}, the total is 8 and ${f(1,4)}.`
+        },
+        {
+            id: 6,
+            question: `Which expression is equal to ${f(5,8)}?`,
+            options: ["5 × 8", "8 × 5", "8 ÷ 5", "5 ÷ 8"],
+            answer: 3, 
+            explanation: `The fraction ${f(5,8)} is mathematically equivalent to 5 divided by 8.`
+        },
+        {
+            id: 7,
+            question: `Which expression is equivalent to 1 - ${f(1,4)} + ${f(2,5)}?`,
+            options: [`${f(1,20)} - ${f(5,20)} + ${f(4,20)}`, `${f(1,20)} - ${f(5,20)} + ${f(8,20)}`, `${f(20,20)} - ${f(6,20)} + ${f(6,20)}`, `${f(20,20)} - ${f(5,20)} + ${f(8,20)}`],
+            answer: 3, 
+            explanation: `We need a common denominator of 20. 1 becomes ${f(20,20)}. ${f(1,4)} becomes ${f(5,20)}. ${f(2,5)} becomes ${f(8,20)}.`
+        },
+        {
+            id: 8,
+            question: `Kara uses 5 gallons of water for her vegetables. She uses ${f(3,4)} of that amount for her fruits.<br><img src='q8.png' class='question-image' alt='5 rectangular bars, partially shaded'><br>The shaded portions represent the water for fruits. Enter the amount in gallons.`,
+            options: ["3 gallons", `<span class="mixed">3</span>${f(1,2)} gallons`, `<span class="mixed">3</span>${f(3,4)} gallons`, "4 gallons"],
+            answer: 2, 
+            explanation: `Count the shaded fourths. There are 15 shaded parts. 15 ÷ 4 is 3 with a remainder of 3. That makes <span class="mixed">3</span>${f(3,4)}.`
+        },
+        {
+            id: 9,
+            question: `Which situation can be represented by the equation: ${f(1,2)} × <span style="border:1px solid #333; padding:0 5px;">?</span> = 4`,
+            options: [`Marvin had 4 packs. He gave Karen ${f(1,2)} pack.`, `Marvin had 4 pieces. He gave Karen ${f(1,2)} piece.`, `Karen gave Marvin ${f(1,2)} pack. He bought 4 more.`, `Marvin gave Karen ${f(1,2)} of the pieces in a pack. He gave her 4 pieces.`],
+            answer: 3, 
+            explanation: `The equation asks: "${f(1,2)} of what number equals 4?" This matches situation D where he gave half the pack, which was 4 pieces.`
+        },
+        {
+            id: 10,
+            question: `Mr. Alvarez has a note card that measures ${f(6,100)} meter by ${f(11,100)} meter.<br><img src='q10.png' class='question-image' alt='Rectangle with dimensions'><br>How many square stickers (side length ${f(1,100)} m) are needed to cover it?`,
+            options: ["17 stickers", "60 stickers", "66 stickers", "600 stickers"],
+            answer: 2, 
+            explanation: `Look at the image. The height is 11 units and the width is 6 units. To cover the area, multiply: 6 × 11 = 66 stickers.`
+        },
+        {
+            id: 11,
+            question: `Three students are using strategies to add ${f(1,2)} + ${f(3,4)}.<br><strong>Student A:</strong> ${f(1,2)} + ${f(1,2)} + ${f(1,4)}<br><strong>Student B:</strong> ${f(2,4)} + ${f(3,4)}<br><strong>Student C:</strong> ${f(1,2)} + ${f(2,2)} + ${f(1,2)}<br>Which students are correct?`,
+            options: ["Student A only", "Student B only", "Student C only", "Both Student A and Student B"],
+            answer: 3, 
+            explanation: `Student A broke ${f(3,4)} into ${f(1,2)} + ${f(1,4)}, which works. Student B converted ${f(1,2)} into ${f(2,4)} to get a common denominator, which is also correct.`
+        },
+        {
+            id: 12,
+            question: "12 × q is greater than 12 but less than 24. What could be the value of q?",
+            options: [`${f(1,2)}`, "1", `<span class="mixed">1</span>${f(1,2)}`, "2"],
+            answer: 2, 
+            explanation: `If q = 1, the result is 12. If q = 2, the result is 24. Since the answer must be BETWEEN 12 and 24, q must be between 1 and 2 (like <span class="mixed">1</span>${f(1,2)}).`
+        },
+        {
+            id: 13,
+            question: "Pat thinks of a number that is greater than 4 and less than 5. He doubles the number.<br><img src='q13.png' class='question-image' alt='Question text for #13'><br>Which statements could be true about the new number?",
+            options: ["The number is between 7 and 8", "The number is between 8 and 9", "The number is between 9 and 10", "Both 'Between 8 and 9' and 'Between 9 and 10' are possible"],
+            answer: 3,
+            noShuffle: true, 
+            explanation: "If the number is between 4 and 5, then doubling it means the new number is between 8 and 10. So it could be between 8-9 OR between 9-10."
+        },
+        {
+            id: 14,
+            question: `Sam has <span class="mixed">1</span>${f(3,5)} feet of wrapping paper. He uses ${f(1,2)} foot. Which expression shows how much is left?`,
+            options: [`1 + ${f(6,10)} - ${f(5,10)}`, `1 - ${f(6,20)} - ${f(5,10)}`, `1 + ${f(3,10)} - ${f(1,10)}`, `1 - ${f(3,10)} - ${f(1,10)}`],
+            answer: 0, 
+            explanation: `Sam starts with <span class="mixed">1</span>${f(3,5)} (which is <span class="mixed">1</span>${f(6,10)}). He uses ${f(1,2)} (which is ${f(5,10)}). The expression 1 + ${f(6,10)} - ${f(5,10)} matches.`
+        },
+        {
+            id: 15,
+            question: `Lamar used ${f(7,8)} cup of raisins for snack mix and ${f(3,4)} cup for cookies. Which expression finds the total?`,
+            options: [`${f(7,8)} + ${f(3,8)}`, `${f(7,8)} + ${f(6,8)}`, `${f(7,12)} + ${f(3,12)}`, `Both A and C`],
+            answer: 1, 
+            noShuffle: true, 
+            explanation: `To add ${f(7,8)} and ${f(3,4)}, we must find a common denominator. ${f(3,4)} is equal to ${f(6,8)}. So the correct expression is ${f(7,8)} + ${f(6,8)}.`
+        },
+        {
+            id: 16,
+            question: `Bonus: Which describes the number <span class="mixed">5</span>${f(2,3)}?`,
+            options: ["Mixed number", "Improper fraction", "Whole number", "Decimal"],
+            answer: 0,
+            explanation: `A number that has both a whole number (5) and a fraction (${f(2,3)}) is called a mixed number.`
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOptionIndex = null;
+    let currentShuffledOptions = [];
+
+    const startScreen = document.getElementById("start-screen");
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultsScreen = document.getElementById("results-screen");
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const submitBtn = document.getElementById("submit-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const feedbackBox = document.getElementById("feedback");
+    const progressBar = document.getElementById("progress");
+    const qCounter = document.getElementById("q-counter");
+    const finalScoreDisplay = document.getElementById("final-score");
+    const scoreTextDisplay = document.getElementById("score-text");
+    const synth = window.speechSynthesis;
+
+    function startQuiz() {
+        startScreen.classList.add("hidden");
+        quizScreen.classList.remove("hidden");
+        loadQuestion();
+    }
+
+    function speakQuestion() {
+        if (synth.speaking) { synth.cancel(); return; }
+        const currentData = quizData[currentQuestionIndex];
+        // Regex updated to match new HTML structure
+        let textToRead = currentData.question
+            .replace(/×/g, " times ") 
+            .replace(/ - /g, " minus ") 
+            .replace(/\+/g, " plus ")   
+            .replace(/<span class="frac"><span class="top">(.*?)<\/span><span class="bottom">(.*?)<\/span><\/span>/g, " $1 over $2 ")
+            .replace(/<span class="mixed">(.*?)<\/span>/g, "$1 and ") 
+            .replace(/<br>/g, ". ")
+            .replace(/<img.*?>/g, " Look at the image. ")
+            .replace(/<.*?>/g, ""); 
+        const utterThis = new SpeechSynthesisUtterance(textToRead);
+        utterThis.rate = 0.9; 
+        synth.speak(utterThis);
+    }
+
+    function loadQuestion() {
+        synth.cancel();
+        const currentData = quizData[currentQuestionIndex];
+        qCounter.innerText = `${currentQuestionIndex + 1}/${quizData.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${currentData.question}`;
+        optionsContainer.innerHTML = "";
+        selectedOptionIndex = null;
+        submitBtn.disabled = true;
+        nextBtn.disabled = true;
+        feedbackBox.style.display = "none";
+        
+        // Prepare options
+        let optionsToRender = currentData.options.map((opt, i) => ({ html: opt, originalIndex: i }));
+        
+        // Shuffle ONLY if noShuffle is false
+        if (!currentData.noShuffle) {
+            for (let i = optionsToRender.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [optionsToRender[i], optionsToRender[j]] = [optionsToRender[j], optionsToRender[i]];
+            }
+        }
+        currentShuffledOptions = optionsToRender;
+
+        currentShuffledOptions.forEach((optObj, index) => {
+            const btn = document.createElement("div");
+            btn.className = "option-btn";
+            btn.innerHTML = optObj.html;
+            btn.onclick = () => selectOption(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+
+        const progress = ((currentQuestionIndex) / quizData.length) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+
+    function selectOption(index, btnElement) {
+        if (nextBtn.disabled === false) return; 
+        const allOptions = document.querySelectorAll(".option-btn");
+        allOptions.forEach(opt => opt.classList.remove("selected"));
+        btnElement.classList.add("selected");
+        selectedOptionIndex = index; 
+        submitBtn.disabled = false;
+    }
+
+    function checkAnswer() {
+        const currentData = quizData[currentQuestionIndex];
+        const allOptions = document.querySelectorAll(".option-btn");
+        submitBtn.disabled = true;
+        nextBtn.disabled = false;
+        feedbackBox.style.display = "block";
+
+        const selectedOriginalIndex = currentShuffledOptions[selectedOptionIndex].originalIndex;
+        let correctButtonIndex = -1;
+        currentShuffledOptions.forEach((opt, i) => { if(opt.originalIndex === currentData.answer) correctButtonIndex = i; });
+
+        if (selectedOriginalIndex === currentData.answer) {
+            score++;
+            allOptions[selectedOptionIndex].classList.add("correct");
+            feedbackBox.innerHTML = `<strong>Correct!</strong> <br>${currentData.explanation}`;
+            feedbackBox.style.backgroundColor = "#dbfce6";
+            feedbackBox.style.color = "#0e5e52";
+        } else {
+            allOptions[selectedOptionIndex].classList.add("wrong");
+            if(correctButtonIndex !== -1) allOptions[correctButtonIndex].classList.add("correct");
+            feedbackBox.innerHTML = `<strong>Incorrect.</strong> <br>${currentData.explanation}`;
+            feedbackBox.style.backgroundColor = "#fadbd8";
+            feedbackBox.style.color = "#8a1c1c";
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizScreen.classList.add("hidden");
+        resultsScreen.classList.remove("hidden");
+        
+        const percentage = Math.round((score / quizData.length) * 100);
+        finalScoreDisplay.innerText = `${percentage}%`;
+        scoreTextDisplay.innerText = `You got ${score} out of ${quizData.length} questions correct.`;
+        
+        launchConfetti();
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        resultsScreen.classList.add("hidden");
+        startScreen.classList.remove("hidden");
+    }
+
+    function launchConfetti() {
+        const colors = ['#f72585', '#4361ee', '#4cc9f0', '#2ec4b6', '#f9c74f'];
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+            confetti.style.opacity = Math.random();
+            document.body.appendChild(confetti);
+            setTimeout(() => { confetti.remove(); }, 5000);
+        }
+    }
+</script>
+
+</body>
+</html>
